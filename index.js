@@ -67,21 +67,28 @@ class Index {
       );
       res.status(200).send({ response: 'OK!' });
     });
-    this.app.all('/offset/:channel/:offset', (req, res) => {
+    this.app.all('/frequency/:channel/:offset', (req, res) => {
       this.microcontroller.sendMessage({
-        message: 'offset',
+        message: 'frequency',
         channel: parseInt(req.params.channel),
         offset: parseInt(req.params.offset)
       });
       res.status(200).send({ response: 'OK!' });
     });
     this.app.all('/duty/:channel/:duty', (req, res) => {
-      this.microcontroller.sendMessage(
-        'duty',
-        60,
-        parseInt(req.params.channel),
-        parseInt(req.params.duty)
-      );
+      this.microcontroller.sendMessage({
+        message: 'duty',
+        channel: parseInt(req.params.channel),
+        duty_cycle: parseInt(req.params.duty)
+      });
+      res.status(200).send({ response: 'OK!' });
+    });
+    this.app.all('/volume/:channel/:volume', (req, res) => {
+      this.microcontroller.sendMessage({
+        message: 'volume',
+        channel: parseInt(req.params.channel),
+        volume: parseInt(req.params.volume)
+      });
       res.status(200).send({ response: 'OK!' });
     });
     this.app.all('*', (req, res) => {
@@ -90,7 +97,7 @@ class Index {
   }
   initSerial() {
     // Start up the instrument communiations
-    this.microcontroller = new Serial('/dev/tty.usbmodem1101', 9600);
+    this.microcontroller = new Serial('/dev/tty.usbmodem11301', 9600);
   }
   addSerialListeners() {
     this.microcontroller.addListener('serial_message', (data) => {

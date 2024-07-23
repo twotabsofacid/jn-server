@@ -37,6 +37,7 @@ class Serial extends EventEmitter {
     //    - 144 = note on
     //    - 128 = note off
     //    - 160 = duty cycle change
+    //    - 176 = volume attenuation
     //    - 192 = offset change
     // PLUS the channel
     //    - 0 = channel zero
@@ -44,8 +45,9 @@ class Serial extends EventEmitter {
     //    - 2 = channel two
     // ... and so on
     // Second part of the message is note number,
-    // OR duty cycle
-    // OR offset
+    // OR duty cycle (1 to 99)
+    // OR offset (0 to 127, which is -64 to 63)
+    // OR volume (0 is full volume, 15 is mute)
     // Note number is:
     // Straight midi value of that number
     // Duty cycle is:
@@ -55,8 +57,10 @@ class Serial extends EventEmitter {
       messageInteger = 144;
     } else if (obj.message === 'note_off') {
       messageInteger = 128;
-    } else if (obj.message === 'offset') {
+    } else if (obj.message === 'frequency') {
       messageInteger = 192;
+    } else if (obj.message === 'volume') {
+      messageInteger = 176;
     } else {
       messageInteger = 160;
     }
@@ -64,7 +68,9 @@ class Serial extends EventEmitter {
       messageInteger === 160
         ? obj.duty_cycle
         : messageInteger === 192
-        ? obj.offset
+        ? obj.offset + 64
+        : messageInteger === 176
+        ? obj.volume
         : obj.midi;
     console.log(
       `about to send a ${obj.message} message: ${(
@@ -74,6 +80,8 @@ class Serial extends EventEmitter {
           ? 'duty'
           : messageInteger === 192
           ? 'offset'
+          : messageInteger === 176
+          ? obj.volume
           : 'midi'
       } message is ${messageToSend}.`
     );
